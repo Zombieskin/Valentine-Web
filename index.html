@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Valentine Quest</title>
+    <style>
+        :root {
+            --pink: #ff4d6d;
+            --light-pink: #fff0f3;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: var(--light-pink);
+            font-family: 'Arial Rounded MT Bold', sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        #container {
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            background: white;
+            padding: 30px 20px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(255, 77, 109, 0.2);
+            z-index: 10;
+        }
+
+        h1 { color: var(--pink); font-size: 1.8rem; margin: 15px 0; }
+        p#no-message { color: #888; font-size: 0.9rem; height: 20px; margin-bottom: 10px; font-style: italic; }
+
+        .media-box img {
+            width: 100%;
+            max-width: 200px;
+            border-radius: 15px;
+        }
+
+        .btn-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            position: relative;
+            height: 100px;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #yesBtn { background: var(--pink); color: white; z-index: 2; }
+        #noBtn { background: #eee; color: #666; position: absolute; left: 60%; z-index: 1; }
+
+        /* Floating Hearts */
+        .heart {
+            position: absolute;
+            color: var(--pink);
+            pointer-events: none;
+            animation: floatUp 3s ease-in forwards;
+            z-index: 5;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100vh) scale(1.5); opacity: 0; }
+        }
+
+        .hidden { display: none; }
+
+        /* Explosion GIF Styling */
+        #explosion-img {
+            width: 100%;
+            border-radius: 20px;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <div id="quiz-ui">
+            <div class="media-box">
+                <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueW9oZ3R6ZGRpZW9ueXp6eXp6eXp6eXp6eXp6eXp6eXp6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/c7p88f9XST5o71I3u7/giphy.gif" alt="cute">
+            </div>
+            <h1>Will you be my Valentine?</h1>
+            <p id="no-message"></p>
+            <div class="btn-wrapper">
+                <button id="yesBtn">YES!</button>
+                <button id="noBtn">No</button>
+            </div>
+        </div>
+
+        <div id="success-ui" class="hidden">
+            <img id="explosion-img" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbTRqdXN4Z3R6ZGRpZW9ueXp6eXp6eXp6eXp6eXp6eXp6eXp6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/26tOZ42Mg6pbMUPHW/giphy.gif" alt="See Ya!">
+            <h1 style="font-size: 2.5rem;">SEE YA! 🚀❤️</h1>
+            <p>Date mode: ACTIVATED.</p>
+        </div>
+    </div>
+
+    <script>
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const noMsg = document.getElementById('no-message');
+        const quizUi = document.getElementById('quiz-ui');
+        const successUi = document.getElementById('success-ui');
+
+        const stubbornMessages = [
+            "Don't worry, I've got time... ⏳",
+            "I can wait all day! 😇",
+            "Error: 'No' is not an option. ❌",
+            "Nice try! Still waiting... 😏",
+            "You're cute when you're stubborn! ✨",
+            "I'm very patient. 🐢"
+        ];
+
+        let yesScale = 1;
+        let msgIndex = 0;
+
+        function moveNoButton() {
+            // Update message
+            noMsg.innerText = stubbornMessages[msgIndex];
+            msgIndex = (msgIndex + 1) % stubbornMessages.length;
+
+            // Teleport button within the viewport
+            const padding = 50;
+            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - padding);
+            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - padding);
+            
+            noBtn.style.position = 'fixed';
+            noBtn.style.left = x + 'px';
+            noBtn.style.top = y + 'px';
+
+            // Make YES bigger so it's harder to miss
+            yesScale += 0.2;
+            yesBtn.style.transform = `scale(${yesScale})`;
+        }
+
+        // Handle both Desktop hover and Mobile touch
+        noBtn.addEventListener('mouseover', moveNoButton);
+        noBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Prevents clicking the button on mobile
+            moveNoButton();
+        });
+
+        yesBtn.addEventListener('click', () => {
+            quizUi.classList.add('hidden');
+            successUi.classList.remove('hidden');
+            document.body.style.backgroundColor = '#ff4d6d';
+            createHearts();
+        });
+
+        function createHearts() {
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.innerHTML = '❤️';
+                    heart.className = 'heart';
+                    heart.style.left = Math.random() * 100 + 'vw';
+                    heart.style.top = '100vh';
+                    heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
+                    document.body.appendChild(heart);
+                    setTimeout(() => heart.remove(), 3000);
+                }, i * 100);
+            }
+        }
+    </script>
+</body>
+</html>
